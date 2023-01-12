@@ -5,8 +5,8 @@
  */
 
 var app = require('../app');
+var {startIO} = require('../socketIO');
 var http = require('http');
-const {Server} = require('socket.io');
 
 /**
  * Get port from environment and store in Express.
@@ -16,30 +16,15 @@ var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
- * Create HTTP server.
+ * Create HTTP and Socket.io server.
  */
 
 var server = http.createServer(app);
+startIO(server);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-const io = new Server(server, {
-  cors: {
-    origin: `http://localhost:3000`
-  }
-});
-
-io.on("connection", (socket) => {
-    console.log(`User Connected with ID: ${socket.id}`)
-
-    // receive a message from the client
-    socket.on("ping", (callback) => {
-        socket.broadcast.emit("pong_public")
-        socket.emit("pong_private")
-    });
-});
 
 server.listen(port);
 server.on('error', onError);
